@@ -1,0 +1,29 @@
+---
+import { Sidebar } from "@/app/layout";
+import Nav from "../components/Nav.astro"
+import "@/styles/global.css"
+const { title } =  Astro.props
+import { ClerkProvider } from '@clerk/clerk-react';
+import { UserProfile } from '@clerk/clerk-react';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/Schreib-recht-logo.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		
+	</head>
+	<body class="">
+		<Sidebar client:load>
+			<slot />
+		</Sidebar>
+	</body>
+</html>
+
+<style>
+
+</style>

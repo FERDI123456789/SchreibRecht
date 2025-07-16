@@ -1,0 +1,51 @@
+---
+
+import { ExtraNav } from "../components/ExtraNav.tsx"
+import "@/styles/global.css"
+import { NavSidebar } from "@/components/nav-sidebar.tsx";
+---
+
+      
+          <nav aria-label="Top" class="bg-white shadow-lg mx-auto px-4 sm:px-4 py-2  lg:px-8 top-0 left-1/2 transform fixed -translate-x-1/2 w-full z-50">
+            
+            <div class="">
+              
+              <div class="flex h-16 items-center">
+                
+                <div class="ml-2 md:ml-4 flex lg:ml-0 mt-6">
+                  <a href="/">
+                    <span class='text-4xl text-dark font-bold rounded-md hidden md:inline-block'>LRSio.app</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="inline-block size-14 text-primary brightness-90 mb-8 md:mb-6 ml-1" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M2 8v11.529S6.621 19.357 12 22c5.379-2.643 10-2.471 10-2.471V8s-5.454 0-10 2.471C7.454 8 2 8 2 8" />
+                      <circle cx="12" cy="5" r="3" fill="currentColor" />
+                    </svg>
+                  </a>
+                </div>
+
+                <div class="mx-auto hidden xl:flex">
+                  <ExtraNav client:load/>
+                </div> 
+                  
+                  <div class="ml-auto flex justify-between">
+                    <a href="/auth/signin" class="relative rounded-md  text-black group select-none flex items-center hover:bg-black focus:bg-gray-300  justify-center cursor-pointer px-5 py-2 font-bold tracking-wider transition-all duration-200 overflow-hidden">
+                      <!-- Text bleibt zentriert, keine extra Abstände -->
+                      <p class="font-bold text-md select-none group-hover:text-white duration-200 transition-all">
+                          Sign In
+                      </p>
+        
+                    </a>
+                  </div>
+                  <div class="ml-3 flex justify-between">
+                    <a href="/auth/signup" class="relative rounded-md bg-white border border-black hover:border-transparent text-black hover:bg-black focus:bg-gray-300 group select-none flex items-center justify-center cursor-pointer px-5 py-2 font-bold tracking-wider transition-all duration-200 overflow-hidden">
+                      <!-- Text bleibt zentriert, keine extra Abstände -->
+                      <p class="font-bold text-md select-none group-hover:text-white duration-200 transition-all">
+                          Sign Up
+                      </p>
+                    </a>
+                  </div>
+                  <div class="ml-5 flex xl:hidden">
+                    <NavSidebar client:load/>   
+                  </div>
+              </div>
+            </div>     
+          </nav>
