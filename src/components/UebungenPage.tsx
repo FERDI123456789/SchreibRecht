@@ -505,61 +505,6 @@ const RandomNumberGenerator = () => {
     }, 300);
   };
 
-  // Render Herzen mit Animation - von links nach rechts grau werdend
-  const renderHearts = () => {
-    return (
-      <div className="flex gap-1">
-        {[...Array(maxHearts)].map((_, index) => (
-          <div 
-            key={index} 
-            className={`transition-all duration-300 ${
-              index >= maxHearts - rerollsLeft
-                ? 'scale-100' 
-                : 'scale-95 opacity-40'
-            }`}
-          >
-            <svg 
-              className={`w-6 h-6 ${
-                index >= maxHearts - rerollsLeft
-                  ? 'text-red-500' 
-                  : 'text-gray-300'
-              }`} 
-              fill="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  // Funktion zum Zurücksetzen aller gespeicherten Daten
-  const resetAllData = () => {
-    localStorage.removeItem('writingExercises');
-    localStorage.removeItem('readingExercises');
-    localStorage.removeItem('exerciseResults');
-    localStorage.removeItem('rerollsLeft');
-    localStorage.removeItem('cooldownEndTime');
-    setWritingExercisesList([]);
-    setReadingExercisesList([]);
-    setExerciseResults({});
-    
-    // Reset hearts to max
-    const maxHeartsLocal = localStorage.getItem('extraHeart') === 'true' ? 6 : 5;
-    setRerollsLeft(maxHeartsLocal);
-    localStorage.setItem('rerollsLeft', String(maxHeartsLocal));
-    
-    // Clear regeneration state
-    setNextHeartTime(null);
-    setIsRegenerating(false);
-    setTimeLeft(0);
-    
-    setTotalCoins(0);
-    localStorage.removeItem('totalCoins');
-  };
-
   useEffect(() => {
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
@@ -650,7 +595,7 @@ const RandomNumberGenerator = () => {
 
   if (isLoading) {
     return (
-      <div className="relative mx-auto">
+      <div className="relative mx-auto ">
         {/* Header mit Ghost-Coins und Ghost-Herzen */}
         <div className="fixed top-5 right-5 z-50 flex items-center gap-4 animate-pulse">
           {/* Ghost Coin */}
@@ -718,7 +663,9 @@ const RandomNumberGenerator = () => {
   return (
     <div className="relative mx-auto">
       {/* Header with hearts and coins */}
-      <div className="fixed top-5 right-5 z-50 flex items-center gap-4">
+      <div className="fixed bg-[#608bef] rounded-bl-2xl px-4 py-2 top-0 right-0 z-50 flex items-center gap-4">
+        <div className="w-6 h-6 bg-white rounded-md absolute top-[54px] right-[5px]" />
+        <div className="w-6 h-6 bg-white rounded-lg absolute top-[7px] right-[270px]" />
         {rerollsLeft < maxHearts && (
           <div className="absolute right-0 top-12 flex items-center bg-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md bg-opacity-90 border border-gray-200">
             <svg 

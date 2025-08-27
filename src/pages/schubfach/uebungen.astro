@@ -1,7 +1,7 @@
 ---
 import { Sidebar } from "@/app/layout";
 import CreateLayout from "@/layouts/CreateLayout.astro";
-import RandomNumberGenerator from "@/components/RandomNumberGenerator";
+import UebungenPage from "@/components/UebungenPage";
 import blue_parrot from "@/assets/blue-parrot-2.png";
 import {Username} from "@/components/username"
 import { Image } from "astro:assets";
@@ -10,7 +10,7 @@ import { useState } from "react";
 
 <CreateLayout>
   <div class="container mx-auto p-4">
-    <RandomNumberGenerator client:load />
+    <UebungenPage client:load />
   </div>
 </CreateLayout>
 
