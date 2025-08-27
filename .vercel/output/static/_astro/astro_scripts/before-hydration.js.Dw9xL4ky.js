@@ -1,0 +1,1 @@
+import{r}from"../chunk-MB6ONLJQ.D6Inzm39.js";import"../chunk-5Y36EW34.D9VPzrEC.js";import"../chunk-TTPTJY6P.F3x2VoRU.js";import"../chunk-DQ36E7IB.8KHId17R.js";await r({sdkMetadata:{version:"2.4.1",name:"@clerk/astro",environment:"production"}});
