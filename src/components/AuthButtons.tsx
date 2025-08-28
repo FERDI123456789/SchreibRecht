@@ -31,7 +31,7 @@ const InnerAuthButtons = () => {
             className="relative rounded-md border font-extrabold uppercase border-primary hover:border-transparent text-primary hover:bg-primary focus:bg-gray-300 group select-none flex items-center justify-center cursor-pointer px-5 py-2 tracking-wider transition-all duration-200 overflow-hidden"
           >
             <p className=" text-md select-none group-hover:text-white duration-200 transition-all">
-              Dashboard
+              Schubfach
               <ArrowRight
                 className="group-hover:-rotate-12 inline mb-0.5"
                 size={20}
