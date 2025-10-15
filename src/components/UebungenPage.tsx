@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import confetti from 'canvas-confetti';
+import CoinsAndHearts from './CoinsAndHearts';
+import { useUser } from "@clerk/clerk-react";
 
-// Define the structure for our exercises with questions and answers
 interface Exercise {
   title: string;
   question: string;
@@ -24,7 +25,6 @@ interface CoinAnimation {
   delay?: number;
 }
 
-// Neue Interface für Shop-Items
 interface ShopItem {
   id: number;
   name: string;
@@ -105,7 +105,7 @@ const lrsExercises: Exercise[] = [
 ];
 
 const RandomNumberGenerator = () => {
-  // Separate States für beide Container
+  const { user } = useUser();
   const [writingExercisesList, setWritingExercisesList] = useState<Exercise[]>([]);
   const [readingExercisesList, setReadingExercisesList] = useState<Exercise[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -117,7 +117,6 @@ const RandomNumberGenerator = () => {
   const [nextHeartTime, setNextHeartTime] = useState<number | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [totalCoins, setTotalCoins] = useState<number>(0); // Start mit 0
   const [coinAnimations, setCoinAnimations] = useState<CoinAnimation[]>([]);
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [hasExtraHeart, setHasExtraHeart] = useState(false);
@@ -178,41 +177,29 @@ const RandomNumberGenerator = () => {
       type: "block"
     }
   ]);
-
-  // Füge State für das Inventar hinzu
   const [inventory, setInventory] = useState<Record<number, number>>({});
-
   const [isBuildingMode, setIsBuildingMode] = useState(false);
-
   const [purchaseAnimations, setPurchaseAnimations] = useState<PurchaseAnimation[]>([]);
-
   const [isLoading, setIsLoading] = useState(true);
   const [justLoaded, setJustLoaded] = useState(false);
   const [number, setNumber] = useState<number | null>(null);
 
-  // Effekt für Extra-Herz-Überprüfung - nur im Client ausgeführt
   useEffect(() => {
-    setHasExtraHeart(localStorage.getItem('extraHeart') === 'true');
-    setMaxHearts(localStorage.getItem('extraHeart') === 'true' ? 6 : 5);
-  }, []);
-
-  // Lade gespeicherte Werte beim Start
-  useEffect(() => {
+    // Load from localStorage for non-coins data
     const savedRerolls = localStorage.getItem('rerollsLeft');
     const savedCooldownEnd = localStorage.getItem('cooldownEndTime');
     const savedWriting = localStorage.getItem('writingExercises');
     const savedReading = localStorage.getItem('readingExercises');
     const savedResults = localStorage.getItem('exerciseResults');
-    
-    // Check if extra heart was purchased - moved to another useEffect
+    const savedItems = localStorage.getItem('shopItems');
+    const savedInventory = localStorage.getItem('inventory');
+
     const hasExtraHeartLocal = localStorage.getItem('extraHeart') === 'true';
     setHasExtraHeart(hasExtraHeartLocal);
-    
-    // Standardwert ist jetzt 5, oder 6 wenn Extra Herz gekauft wurde
     const maxHeartsLocal = hasExtraHeartLocal ? 6 : 5;
     setMaxHearts(maxHeartsLocal);
     setRerollsLeft(savedRerolls ? Math.min(Number(savedRerolls), maxHeartsLocal) : maxHeartsLocal);
-    
+
     if (savedCooldownEnd) {
       const cooldownTime = Number(savedCooldownEnd);
       if (cooldownTime > Date.now()) {
@@ -220,13 +207,21 @@ const RandomNumberGenerator = () => {
         setIsRegenerating(true);
       }
     }
-    
+
     setWritingExercisesList(savedWriting ? JSON.parse(savedWriting) : []);
     setReadingExercisesList(savedReading ? JSON.parse(savedReading) : []);
     setExerciseResults(savedResults ? JSON.parse(savedResults) : {});
+    if (savedItems) setShopItems(JSON.parse(savedItems));
+    if (savedInventory) setInventory(JSON.parse(savedInventory));
+
+    setTimeout(() => {
+      setNumber(Math.floor(Math.random() * 100));
+      setIsLoading(false);
+      setJustLoaded(true);
+      setTimeout(() => setJustLoaded(false), 400);
+    }, 1500);
   }, []);
 
-  // Timer für Herz-Regeneration
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
@@ -236,14 +231,12 @@ const RandomNumberGenerator = () => {
         
         if (nextHeartTime <= now) {
           if (rerollsLeft < maxHearts) {
-            // Add one heart
             setRerollsLeft(prev => {
               const newValue = prev + 1;
               localStorage.setItem('rerollsLeft', String(newValue));
               return newValue;
             });
             
-            // Schnellere Regeneration wenn das Item gekauft wurde
             const regenerationTime = shopItems.find(item => item.id === 2)?.owned ? 2500 : 5000;
             
             if (rerollsLeft + 1 < maxHearts) {
@@ -263,35 +256,9 @@ const RandomNumberGenerator = () => {
     }
     
     return () => {
-      if (timer) {
-        clearInterval(timer);
-      }
+      if (timer) clearInterval(timer);
     };
   }, [isRegenerating, nextHeartTime, rerollsLeft, shopItems, maxHearts]);
-
-  // Lade die gespeicherten Münzen und füge 100 hinzu, aber nur auf Client-Side
-  useEffect(() => {
-    const saved = localStorage.getItem('totalCoins');
-    const currentCoins = saved ? parseInt(saved) : 0;
-    const newTotal = currentCoins + 0;
-    setTotalCoins(newTotal);
-    localStorage.setItem('totalCoins', newTotal.toString());
-  }, []); // Läuft nur einmal beim Client-Side Mount
-
-  // Then load saved items in useEffect
-  useEffect(() => {
-    const savedItems = localStorage.getItem('shopItems');
-    if (savedItems) {
-      setShopItems(JSON.parse(savedItems));
-    }
-  }, []);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('inventory');
-    if (saved) {
-      setInventory(JSON.parse(saved));
-    }
-  }, []);
 
   const generateRandomExercises = (type: 'writing' | 'reading') => {
     if (rerollsLeft <= 0) return;
@@ -300,24 +267,19 @@ const RandomNumberGenerator = () => {
     setRerollsLeft(newRerollsLeft);
     localStorage.setItem('rerollsLeft', String(newRerollsLeft));
     
-    // Timer startet sofort wenn ein Herz verbraucht wird
     if (!isRegenerating) {
       setIsRegenerating(true);
-      // Change to 5 seconds default, 2.5 seconds if fast regen is bought
       const regenerationTime = shopItems.find(item => item.id === 2)?.owned ? 2500 : 5000;
       const nextTime = Date.now() + regenerationTime;
       setNextHeartTime(nextTime);
       localStorage.setItem('cooldownEndTime', String(nextTime));
     }
 
-    // Verbesserte Filterung der Übungen
     const writingKeywords = ['schreib', 'Schreib', 'Wortschatz', 'Grammatik', 'Silben', 'Satzzeichen', 'Groß-'];
-    const readingKeywords = ['lese', 'Lese', 'Verständnis', 'Satzbau', 'Zeit']; // Zeitformen auch zu Leseübungen
+    const readingKeywords = ['lese', 'Lese', 'Verständnis', 'Satzbau', 'Zeit'];
 
-    // Manuelle Zuordnung für spezielle Fälle
     const isReadingExercise = (exercise: Exercise) => {
       if (readingKeywords.some(keyword => exercise.title.includes(keyword))) return true;
-      // Zusätzliche Bedingungen für Leseübungen
       if (exercise.title.includes('Zeitformen')) return true;
       if (exercise.title.includes('Satzbau')) return true;
       return false;
@@ -325,7 +287,6 @@ const RandomNumberGenerator = () => {
 
     const isWritingExercise = (exercise: Exercise) => {
       if (writingKeywords.some(keyword => exercise.title.includes(keyword))) return true;
-      // Zusätzliche Bedingungen für Schreibübungen
       if (exercise.title.includes('Groß-')) return true;
       if (exercise.title.includes('Grammatik')) return true;
       return false;
@@ -335,16 +296,13 @@ const RandomNumberGenerator = () => {
       ? lrsExercises.filter(isWritingExercise)
       : lrsExercises.filter(isReadingExercise);
 
-    // Stelle sicher, dass wir genug Übungen haben
     if (filteredExercises.length < 5) {
-      // Wenn nicht genug spezifische Übungen vorhanden sind, füge weitere passende hinzu
       const remainingExercises = lrsExercises.filter(ex => 
         type === 'writing' ? !isReadingExercise(ex) : !isWritingExercise(ex)
       );
       filteredExercises.push(...remainingExercises);
     }
 
-    // Wähle zufällig genau 5 Übungen aus
     const exercises: Exercise[] = [];
     const availableExercises = [...filteredExercises];
     
@@ -354,7 +312,6 @@ const RandomNumberGenerator = () => {
       exercises.push(selectedExercise);
     }
 
-    // Update den entsprechenden Container
     if (type === 'writing') {
       setWritingExercisesList(exercises);
       localStorage.setItem('writingExercises', JSON.stringify(exercises));
@@ -371,12 +328,10 @@ const RandomNumberGenerator = () => {
     localStorage.setItem('exerciseResults', JSON.stringify(newResults));
   };
 
-
   const handleExerciseClick = (exercise: Exercise) => {
     setSelectedExercise(exercise);
     setIsModalOpen(true);
     
-    // Load saved answer if it exists
     const savedResult = exerciseResults[exercise.title];
     if (savedResult) {
       setSelectedAnswer(savedResult.selectedAnswer);
@@ -397,20 +352,16 @@ const RandomNumberGenerator = () => {
     amount: number, 
     eventOrRect: React.MouseEvent | DOMRect
   ) => {
-    // Ermittle die Position des Klicks/Elements für den Startpunkt der Animation
     let startX: number, startY: number;
     
     if ('clientX' in eventOrRect) {
-      // Es ist ein MouseEvent
       startX = eventOrRect.clientX;
       startY = eventOrRect.clientY;
     } else {
-      // Es ist ein DOMRect
       startX = eventOrRect.left + eventOrRect.width / 2;
       startY = eventOrRect.top + eventOrRect.height / 2;
     }
 
-    // Ermittle die Position des Münzenzählers für den Zielpunkt der Animation
     const coinCounter = document.querySelector('.coin-counter');
     if (!coinCounter) return;
 
@@ -418,22 +369,17 @@ const RandomNumberGenerator = () => {
     const targetX = rect.left + rect.width / 2;
     const targetY = rect.top + rect.height / 2;
 
-    // Erstelle eine eindeutige ID für diese Animationsgruppe
     const animationGroupId = Date.now();
 
-    // Erstelle für jede Münze eine separate Animation mit leicht versetzten Positionen
     const newAnimations: CoinAnimation[] = [];
     for (let i = 0; i < amount; i++) {
-      // Füge ein wenig Zufall für natürlichere Bewegung hinzu
-      const offsetX = Math.random() * 40 - 20; // -20 bis +20 Pixel X-Offset
-      const offsetY = Math.random() * 40 - 20; // -20 bis +20 Pixel Y-Offset
-      
-      // Zufällige Verzögerung für gestaffelte Animation
-      const delay = Math.random() * 300; // 0 bis 300ms Verzögerung
+      const offsetX = Math.random() * 40 - 20;
+      const offsetY = Math.random() * 40 - 20;
+      const delay = Math.random() * 300;
       
       newAnimations.push({
         id: animationGroupId + i,
-        amount: 1, // Jede Animation repräsentiert jetzt nur 1 Münze
+        amount: 1,
         startX: startX + offsetX,
         startY: startY + offsetY,
         targetX,
@@ -442,45 +388,40 @@ const RandomNumberGenerator = () => {
       });
     }
 
-    // Füge die neuen Animationen zum State hinzu
     setCoinAnimations(prev => [...prev, ...newAnimations]);
 
-    // Entferne die Animationen nach Abschluss
-    // Warte die maximale Verzögerung + Animationsdauer ab
     setTimeout(() => {
       setCoinAnimations(prev => 
         prev.filter(coin => coin.id < animationGroupId || coin.id >= animationGroupId + amount)
       );
-    }, 1300); // 300ms max Verzögerung + 1000ms Animation
+    }, 1300);
   };
 
-  const handleSubmit = () => {
-    if (selectedExercise && selectedAnswer !== null) {
+  const handleSubmit = async () => {
+    if (selectedExercise && selectedAnswer !== null && user) {
       const isCorrect = selectedAnswer === selectedExercise.correctAnswer;
       
       if (isCorrect) {
-        // Zufällige Münzanzahl zwischen 1 und 5, verdoppelt wenn das Item gekauft wurde
         const baseAmount = Math.floor(Math.random() * 5) + 1;
-        // Prüfen, ob das "Doppelte Münzen" Item gekauft wurde (aus localStorage)
         const hasDoubleCoins = localStorage.getItem('doubleCoins') === 'true';
         const multiplier = hasDoubleCoins ? 2 : 1;
         const coinAmount = baseAmount * multiplier;
         
-        // Position des Modals für Startpunkt der Animation
         const modalElement = document.querySelector('.modal-content');
         if (modalElement) {
           animateCoinCollection(coinAmount, modalElement.getBoundingClientRect());
         }
         
-        // Münzen zum Gesamtbetrag hinzufügen
-        setTotalCoins(prev => {
-          const newTotal = prev + coinAmount;
-          localStorage.setItem('totalCoins', newTotal.toString());
-          return newTotal;
+        const currentCoins = Number(user.unsafeMetadata.totalCoins) || 0;
+        const newTotal = currentCoins + coinAmount;
+        await user.update({
+          unsafeMetadata: {
+            ...user.unsafeMetadata,
+            totalCoins: newTotal,
+          },
         });
       }
       
-      // Save result to state and localStorage
       const newResults = {
         ...exerciseResults,
         [selectedExercise.title]: {
@@ -493,7 +434,6 @@ const RandomNumberGenerator = () => {
       localStorage.setItem('exerciseResults', JSON.stringify(newResults));
       setIsSubmitted(true);
       
-      // Sofort das Modal schließen
       closeModal();
     }
   };
@@ -501,7 +441,7 @@ const RandomNumberGenerator = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setTimeout(() => {
-    setSelectedExercise(null);
+      setSelectedExercise(null);
     }, 300);
   };
 
@@ -536,11 +476,9 @@ const RandomNumberGenerator = () => {
     `;
     document.head.appendChild(styleSheet);
 
-    // Cleanup
     return () => styleSheet.remove();
   }, []);
 
-  // Add this component to render the flying coins
   const renderCoinAnimations = () => {
     return (
       <>
@@ -569,63 +507,19 @@ const RandomNumberGenerator = () => {
     );
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setNumber(Math.floor(Math.random() * 100));
-      setIsLoading(false);
-      setJustLoaded(true);
-      setTimeout(() => setJustLoaded(false), 400); // 400ms Fade-Out
-    }, 1500);
-  }, []);
-
-  // Add this function
-  const resetHearts = () => {
-    const maxHeartsLocal = localStorage.getItem('extraHeart') === 'true' ? 6 : 5;
-    setRerollsLeft(maxHeartsLocal);
-    localStorage.setItem('rerollsLeft', String(maxHeartsLocal));
-    setIsRegenerating(false);
-    setNextHeartTime(null);
-    localStorage.removeItem('cooldownEndTime');
-  };
-
-  // Call this function when the component mounts
-  useEffect(() => {
-    resetHearts();
-  }, []);
-
   if (isLoading) {
     return (
-      <div className="relative mx-auto ">
-        {/* Header mit Ghost-Coins und Ghost-Herzen */}
-        <div className="fixed top-5 right-5 z-50 flex items-center gap-4 animate-pulse">
-          {/* Ghost Coin */}
-          <div className="flex items-center gap-2 bg-gray-200 px-4 py-2 rounded-full shadow-lg border border-gray-300 w-28 h-10">
-            <div className="w-6 h-6 bg-gray-300 rounded-full animate-pulse" />
-            <div className="h-4 bg-gray-300 rounded w-10 animate-pulse" />
-          </div>
-          {/* Ghost Hearts */}
-          <div className="flex gap-1 bg-gray-200 px-4 py-2 rounded-full shadow-lg border border-gray-300">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="w-6 h-6 bg-gray-300 rounded-full animate-pulse" />
-            ))}
-          </div>
-        </div>
-
-        {/* Main content - Skeletons exakt wie geladen */}
+      <div className="relative mx-auto">
         <div className="pt-24 pb-16 px-6 md:px-10 mt-14 mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {/* Schreibübungen Skeleton */}
             <div className="flex flex-col">
-              {/* Überschrift Skeleton */}
               <div className="bg-gray-900 rounded-t-xl p-5 shadow-md flex items-center">
                 <div className="bg-gray-300 rounded-lg w-10 h-10 mr-3 animate-pulse" />
                 <div className="h-8 bg-gray-400 rounded w-40 animate-pulse" />
               </div>
-              {/* Button Skeleton */}
               <div className="flex items-center bg-gray-800 p-4">
                 <div className="bg-gray-400 rounded-lg w-40 h-10 animate-pulse" />
               </div>
-              {/* Übungen Skeleton */}
               <div className="min-h-[350px] min-w-[500px] bg-white rounded-b-xl shadow-lg p-6 flex-grow border-l border-r border-b border-gray-200">
                 <div className="grid grid-cols-1 gap-4">
                   {[...Array(5)].map((_, i) => (
@@ -634,18 +528,14 @@ const RandomNumberGenerator = () => {
                 </div>
               </div>
             </div>
-            {/* Leseübungen Skeleton */}
             <div className="flex flex-col">
-              {/* Überschrift Skeleton */}
               <div className="bg-gray-900 rounded-t-xl p-5 shadow-md flex items-center">
                 <div className="bg-gray-300 rounded-lg w-10 h-10 mr-3 animate-pulse" />
                 <div className="h-8 bg-gray-400 rounded w-40 animate-pulse" />
               </div>
-              {/* Button Skeleton */}
               <div className="flex items-center bg-gray-800 p-4">
                 <div className="bg-gray-400 rounded-lg w-40 h-10 animate-pulse" />
               </div>
-              {/* Übungen Skeleton */}
               <div className="min-h-[350px] bg-white rounded-b-xl shadow-lg p-6 flex-grow border-l border-r border-b border-gray-200">
                 <div className="grid grid-cols-1 gap-4">
                   {[...Array(5)].map((_, i) => (
@@ -662,71 +552,16 @@ const RandomNumberGenerator = () => {
 
   return (
     <div className="relative mx-auto">
-      {/* Header with hearts and coins */}
-      <div className="fixed bg-[#608bef] rounded-bl-2xl px-4 py-2 top-0 right-0 z-50 flex items-center gap-4">
-        <div className="w-6 h-6 bg-white rounded-md absolute top-[54px] right-[5px]" />
-        <div className="w-6 h-6 bg-white rounded-lg absolute top-[7px] right-[270px]" />
-        {rerollsLeft < maxHearts && (
-          <div className="absolute right-0 top-12 flex items-center bg-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md bg-opacity-90 border border-gray-200">
-            <svg 
-              className={`w-5 h-5 text-gray-700 ${isRegenerating ? 'animate-spin' : ''}`} 
-              fill="none" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="2" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-        )}
+      <CoinsAndHearts
+        rerollsLeft={rerollsLeft}
+        maxHearts={maxHearts}
+        isRegenerating={isRegenerating}
+      />
 
-        {/* Coin display and Shop link */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-yellow-100 px-3.5 py-1.5 rounded-full shadow-lg coin-counter border border-yellow-200">
-            <span className="w-5 h-5 mb-1 text-amber-800 drop-shadow-sm">
-            🪙
-            </span>
-            <span className="font-bold text-amber-900">{totalCoins}</span>
-          </div>
-        </div>
-
-        {/* Hearts - redesigned */}
-        <div className="flex gap-1 bg-white bg-opacity-90 backdrop-blur-md px-2.5 py-1.5 rounded-full shadow-lg border border-gray-200">
-          {[...Array(maxHearts)].map((_, index) => (
-            <div 
-              key={index} 
-              className={`transition-all duration-300 ${
-                index >= maxHearts - rerollsLeft
-                  ? 'scale-100' 
-                  : 'scale-90 opacity-40'
-              }`}
-            >
-              <svg 
-                className={`w-6 h-6 ${
-                  index >= maxHearts - rerollsLeft
-                    ? 'text-red-500 drop-shadow-md' 
-                    : 'text-gray-300'
-                } transition-all duration-300`} 
-                fill="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Coin animations */}
       {renderCoinAnimations()}
 
-      {/* Main content - minimalist redesign */}
       <div className="pt-24 pb-16 px-6 md:px-10 mt-14 mx-auto">
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Erster Container - Schreibübungen */}
           <div className="flex flex-col">
             <div className="bg-gray-900 rounded-t-xl p-5 shadow-md">
               <h2 className="text-xl md:text-2xl font-bold text-white flex items-center">
@@ -810,7 +645,6 @@ const RandomNumberGenerator = () => {
             </div>
           </div>
 
-          {/* Zweiter Container - Leseübungen */}
           <div className="flex flex-col">
             <div className="bg-gray-900 rounded-t-xl p-5 shadow-md">
               <h2 className="text-xl md:text-2xl font-bold text-white flex items-center">
@@ -896,7 +730,6 @@ const RandomNumberGenerator = () => {
         </div>
       </div>
 
-      {/* Exercise Modal - Minimalist redesign */}
       {selectedExercise && (
         <div 
           className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-20 backdrop-blur-sm transition-opacity duration-300 z-50 ${
@@ -979,7 +812,6 @@ const RandomNumberGenerator = () => {
         </div>
       )}
 
-      {/* Purchase Animations */}
       {purchaseAnimations.map(animation => (
         <div
           key={animation.id}
@@ -1000,4 +832,4 @@ const RandomNumberGenerator = () => {
   );
 };
 
-export default RandomNumberGenerator; 
+export default RandomNumberGenerator;

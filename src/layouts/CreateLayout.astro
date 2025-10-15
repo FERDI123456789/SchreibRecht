@@ -1,11 +1,11 @@
 ---
 import { Sidebar } from "@/app/layout";
-import Nav from "../components/Nav.astro";
 import "@/styles/global.css";
 const { title } = Astro.props;
+import CoinsAndHearts from "@/components/CoinsAndHearts";
+import ContentSwitcher from "@/components/MainContent";
+import { ClientRouter } from "astro:transitions";
 import { ClerkProvider } from "@clerk/clerk-react";
-import { UserProfile } from "@clerk/clerk-react";
-import { SidebarInset } from "@/components/ui/sidebar";
 ---
 
 <!doctype html>
@@ -16,12 +16,33 @@ import { SidebarInset } from "@/components/ui/sidebar";
     <link rel="icon" type="image/svg+xml" href="/Schreib-recht-logo.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <ClientRouter />
+
   </head>
   <body>
-    <Sidebar client:load>
-      <slot />
-    </Sidebar>
+    <Sidebar>
+    <ClerkProvider
+    publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
+    client:only="react"
+  >
+    <ContentSwitcher client:only="react" />
+  </ClerkProvider>
+</Sidebar>
   </body>
 </html>
 
-<style></style>
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
+  }
+</style>

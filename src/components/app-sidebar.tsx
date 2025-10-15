@@ -1,23 +1,19 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   Command,
   Frame,
   LifeBuoy,
-  Map,
-  PieChart,
   Send,
-  SquarePen,
-  Inbox,
   ShoppingBag,
   Home,
   Settings,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavProjects } from "@/components/nav-projects"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavProjects } from "@/components/nav-projects";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -26,8 +22,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { ClerkProvider } from "@clerk/clerk-react"
+} from "@/components/ui/sidebar";
+import { currentView } from "@/stores/viewStore";
+import { ClerkProvider } from "@clerk/clerk-react";
+import { useStore } from "@nanostores/react";
+
+// ✅ Make this type match your store exactly
+type ViewName = "home" | "uebungen" | "shop" | "einstelugen";
 
 const data = {
   user: {
@@ -36,70 +37,94 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   projects: [
-      {
+    {
       name: "Home",
-      url: "/schubfach/home",
+      path: "/schubfach/home",
       icon: Home,
+      view: "home" as ViewName,
     },
     {
       name: "Übungen",
-      url: "/schubfach/uebungen",
+      path: "/schubfach/uebungen",
       icon: Frame,
+      view: "uebungen" as ViewName,
     },
     {
       name: "Shop",
-      url: "/schubfach/shop",
+      path: "/schubfach/shop",
       icon: ShoppingBag,
+      view: "shop" as ViewName,
     },
     {
       name: "Einstelugen",
-      url: "#",
+      path: "/schubfach/einstelugen",
       icon: Settings,
+      view: "einstelugen" as ViewName,
     },
   ],
   navSecondary: [
     {
       title: "Support",
-      url: "#",
+      path: "#",
       icon: LifeBuoy,
     },
     {
       title: "Feedback",
-      url: "#",
+      path: "#",
       icon: Send,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const view = useStore(currentView); // ✅ subscribe to changes
+
+  React.useEffect(() => {
+    console.log("Current view changed:", view);
+  }, [view]); // ✅ runs every time view changes
+
+  const handleNavClick = (viewName: ViewName) => {
+    currentView.set(viewName);
+  };
+
+  const modifiedProjects = data.projects.map((project) => ({
+    ...project,
+    onClick: () => handleNavClick(project.view),
+  }));
+
   return (
-  <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY!}>
-    <Sidebar className="" collapsible="icon" variant="inset" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton className="bg-white rounded-lg shadow-sm" size="lg" asChild>
-              <a href="#">
-                <div className=" text-sidebar-primary-foreground flex aspect-square size-8 items-center rounded-lg justify-center">
-                  <Command className="size-4 text-black" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">SchreibRecht</span>
-                  <span className="truncate text-xs">Normal</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
-    </Sidebar>
-  </ClerkProvider>
-  )
+    <ClerkProvider
+      publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
+    >
+      <Sidebar className="" collapsible="icon" variant="inset" {...props}>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                className="bg-white rounded-lg shadow-sm"
+                size="lg"
+                asChild
+              >
+                <a href="#">
+                  <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center rounded-lg justify-center">
+                    <Command className="size-4 text-black" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">SchreibRecht</span>
+                    <span className="truncate text-xs">Normal</span>
+                  </div>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent>
+          <NavProjects projects={modifiedProjects} />
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser />
+        </SidebarFooter>
+      </Sidebar>
+    </ClerkProvider>
+  );
 }

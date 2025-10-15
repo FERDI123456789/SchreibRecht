@@ -1,12 +1,17 @@
-import "@/styles/global.css"
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { useStore } from '@nanostores/react'
-import { $userStore } from '@clerk/astro/client'
-import { useEffect, useState } from 'react';
+import "@/styles/global.css";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { useStore } from "@nanostores/react";
+import { $userStore } from "@clerk/astro/client";
+import { useEffect, useState } from "react";
+import { ClerkProvider } from "@clerk/clerk-react";
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
-  const currentUser = useStore($userStore)
+  const currentUser = useStore($userStore);
   const [loading, setLoading] = useState(true); // Track loading state
   const [loadingProgress, setLoadingProgress] = useState(0);
 
@@ -35,24 +40,27 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     fetchData();
   }, []);
 
-
   if (currentUser === null) {
-    return <div>Not signed in</div>
+    return <div>Not signed in</div>;
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1 md:hidden" />
+    <ClerkProvider
+      publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
+    >
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1 md:hidden" />
+            </div>
+          </header>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="w-full">{children}</div>
           </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="w-full">{children}</div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
-  )
+        </SidebarInset>
+      </SidebarProvider>
+    </ClerkProvider>
+  );
 }

@@ -12,31 +12,35 @@ const CoinsAndHearts: React.FC<CoinsAndHeartsProps> = ({
   maxHearts: propMaxHearts,
   isRegenerating: propIsRegenerating,
 }) => {
-  const { user } = useUser();
   const [totalCoins, setTotalCoins] = useState<number>(0);
   const [rerollsLeft, setRerollsLeft] = useState<number>(propRerollsLeft ?? 5);
   const [maxHearts, setMaxHearts] = useState<number>(propMaxHearts ?? 5);
   const [isRegenerating, setIsRegenerating] = useState<boolean>(propIsRegenerating ?? false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Set isClient to true after mount to avoid SSR issues
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Load totalCoins from Clerk user metadata
-  useEffect(() => {
-    if (user && user.unsafeMetadata.totalCoins !== undefined) {
-      setTotalCoins(Number(user.unsafeMetadata.totalCoins) || 0);
-    } else {
-      // Initialize totalCoins if not set
-      setTotalCoins(0);
-      if (user) {
-        user.update({
-          unsafeMetadata: {
-            ...user.unsafeMetadata,
-            totalCoins: 0,
-          },
-        });
-      }
-    }
-  }, [user]);
+  const { user } = isClient ? useUser() : { user: null };
 
-  // Load heart-related data from localStorage (to be updated to Clerk later if needed)
+  useEffect(() => {
+    if (isClient && user && user.unsafeMetadata.totalCoins !== undefined) {
+      setTotalCoins(Number(user.unsafeMetadata.totalCoins) || 0);
+    } else if (isClient && user) {
+      setTotalCoins(0);
+      user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          totalCoins: 0,
+        },
+      });
+    }
+  }, [isClient, user]);
+
+  // Load heart-related data from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setRerollsLeft(propRerollsLeft ?? Number(localStorage.getItem('rerollsLeft') || '5'));
