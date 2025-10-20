@@ -1,0 +1,48 @@
+"use client";
+
+import { useState } from "react";
+import HomeComponent from "@/components/Home";
+import { ExerciseGrid } from "@/components/exercise-grid";
+import { FloatingNav } from "@/components/floating-nav";
+import { ExerciseDialog } from "@/components/exercise-dialog";
+import { ChartLineInteractive } from "@/components/DayChart";
+
+export default function Schubfach() {
+  const [selectedExercise, setSelectedExercise] = useState<number | null>(null);
+  const [activeMode, setActiveMode] = useState<"schreib" | "lesen">("schreib");
+
+  return (
+    <div className="min-h-screen bg-white py-10 pb-28">
+      {/* Header Section with rounded bottom */}
+      <header className="relative mx-auto max-w-7xl overflow-x-hidden overflow-y-hidden rounded-b-2xl">
+        <div className="relative px-5 md:px-10">
+          <div className="grid grid-cols-3">
+            <div className="z-10 col-span-2 mx-auto flex w-full flex-col items-center pt-5 text-center">
+              <HomeComponent />
+            </div>
+            <div>
+              <ChartLineInteractive />
+            </div>
+          </div>
+        </div>
+      </header>
+      {/* Main Content Section */}
+      <section className="bg-white px-5 py-16 md:px-10 md:py-10">
+        <div className="mx-auto w-full max-w-7xl">
+          <ExerciseGrid
+            mode={activeMode}
+            onExerciseClick={setSelectedExercise}
+          />
+        </div>
+      </section>
+
+      <FloatingNav activeMode={activeMode} onModeChange={setActiveMode} />
+
+      <ExerciseDialog
+        exerciseId={selectedExercise}
+        isOpen={selectedExercise !== null}
+        onClose={() => setSelectedExercise(null)}
+      />
+    </div>
+  );
+}
