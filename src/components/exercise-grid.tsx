@@ -169,17 +169,17 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
                     !exercise.isLocked && onExerciseClick(exercise.id)
                   }
                   disabled={exercise.isLocked}
-                  className={`group relative w-full rounded-2xl border-2 transition-all duration-200 ${
+                  className={`group relative w-full rounded-2xl border-2 bg-black/10 shadow-[inset_0_4px_6px_-4px_rgba(240,240,240,0.2)] transition-all duration-200 ${
                     exercise.isLocked
                       ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
-                      : `border-transparent shadow-sm hover:-translate-y-1 hover:border-${colorTheme}/30 hover:shadow-md`
-                  }`}
+                      : `border-transparent hover:scale-[99%]`
+                  } ${!exercise.isLocked ? "" : "bg-red-500"}`}
                 >
                   <div className="p-6">
                     <div className="flex items-start gap-4">
                       {/* Icon */}
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-xl ${exercise.bgColor} ${
+                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-200 ${exercise.bgColor} ${
                           exercise.isLocked ? "opacity-50" : ""
                         }`}
                       >
@@ -192,7 +192,7 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
                       <div className="flex-1 text-left">
                         <div className="mb-2 flex items-center justify-between">
                           <h3
-                            className={`text-lg font-bold text-[#091e3b] transition-colors group-hover:text-${colorTheme}`}
+                            className={`text-lg font-bold text-white transition-colors group-hover:text-${colorTheme}`}
                           >
                             {exercise.title}
                           </h3>
@@ -204,7 +204,7 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
                             {exercise.difficulty}
                           </span>
                         </div>
-                        <p className="mb-3 text-sm text-[#091e3b]/70">
+                        <p className="mb-3 text-sm text-white/70">
                           {exercise.description}
                         </p>
 
@@ -249,20 +249,22 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
         <div className="flex flex-col gap-6">
           {/* Action Buttons */}
           <div className="flex flex-col gap-4">
-            <button className="group flex flex-1 items-center justify-center gap-3 rounded-2xl border border-transparent bg-black/10 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-black hover:shadow-md">
-              <RefreshCw className="h-5 w-5 text-black transition-transform duration-200 ease-in-out group-hover:rotate-[90deg]" />
-              <span className="font-semibold text-black">Neue Übungen</span>
+            <button className="group flex flex-1 items-center justify-center gap-3 rounded-2xl bg-black/10 p-4 shadow-[inset_0_4px_6px_-4px_rgba(240,240,240,0.2)] transition-all duration-200 hover:-translate-y-1">
+              <RefreshCw className="h-5 w-5 text-white transition-transform duration-200 ease-in-out group-hover:rotate-[90deg]" />
+              <span className="font-semibold text-white">Neue Übungen</span>
             </button>
           </div>
 
           {/* Radar Chart */}
-          <div className="rounded-2xl bg-white shadow-sm">
-            <ChartRadarLinesOnly />
-          </div>
+          <div className="rounded-2xl bg-black/10 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.5)]">
+            <div className="rounded-2xl">
+              <ChartRadarLinesOnly />
+            </div>
 
-          {/* Statistics */}
-          <div className="rounded-2xl bg-white shadow-sm">
-            <StatsCard mode={mode} />
+            {/* Statistics */}
+            <div className="rounded-2xl">
+              <StatsCard mode={mode} />
+            </div>
           </div>
           {/* Action Buttons */}
           <div className="flex flex-col gap-4">

@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Flame, Diamond } from "lucide-react";
+import { Flame, Diamond, Edit } from "lucide-react";
 import { useState } from "react";
 
 export default function HomeComponent() {
@@ -20,22 +20,28 @@ export default function HomeComponent() {
   const [seeing, setSeeing] = useState(false);
 
   return (
-    <div className="w-full">
+    <div className="flex h-full w-full flex-col justify-between pb-6">
       <div className="flex justify-between gap-6">
         {/* Avatar and Name */}
-        <div className="flex items-center justify-center gap-4">
-          <Avatar className="h-24 w-24 rounded-full border-4 border-[#091e3b]">
-            <AvatarImage src={userData.avatar} alt={userData.name} />
-            <AvatarFallback className="bg-black/20 text-2xl font-bold text-[#091e3b]">
+        <div className="flex items-center justify-center">
+          <Avatar className="ringtransition-all group relative mr-[12px] h-32 w-32 rounded-full ring ring-white duration-200">
+            <AvatarImage
+              src="https://images.unsplash.com/photo-1750535135593-3a8e5def331d?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=880"
+              alt={userData.name}
+            />
+            <AvatarFallback className="bg-black/20 text-2xl font-bold">
               {userData.name
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
+            <div className="absolute bottom-10 left-10 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white opacity-0 group-hover:opacity-100">
+              <Edit />
+            </div>
           </Avatar>
           <div className="">
             <div className="">
-              <h1 className="text-3xl font-extrabold text-[#091e3b]">
+              <h1 className="text-3xl font-extrabold text-white">
                 {userData.name}
               </h1>
             </div>
@@ -64,7 +70,7 @@ export default function HomeComponent() {
             <p className="text-lg font-bold text-secondary">{userData.coins}</p>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <Flame className="animate-flicker h-8 w-8 text-amber-500" />
+            <Flame className="h-8 w-8 animate-flicker text-amber-500" />
             <p className="text-lg font-bold text-amber-500">
               {userData.streak}
             </p>
@@ -72,18 +78,18 @@ export default function HomeComponent() {
         </div>
       </div>
       {/* Level and XP Progress */}
-      <div className="w-full space-y-3 py-10">
+      <div className="mt-[12px] w-full space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-[#091e3b]">
-            Level {userData.level}
+          <span className="text-lg font-bold text-white">
+            Rank {userData.level}
           </span>
-          <span className="text-lg font-bold text-[#091e3b]">
+          <span className="text-lg font-bold text-white">
             {userData.xp}/{userData.xpGoal} XP
           </span>
         </div>
-        <div className="h-4 w-full overflow-hidden rounded-full border-2 border-[#091e3b] bg-white shadow-inner">
+        <div className="h-4 w-full overflow-hidden rounded-full border border-white shadow-inner">
           <div
-            className="h-full bg-gradient-to-r from-black to-black transition-all duration-500"
+            className="h-full bg-gradient-to-r from-white to-white/60 transition-all duration-500"
             style={{ width: `${xpProgress}%` }}
           />
         </div>

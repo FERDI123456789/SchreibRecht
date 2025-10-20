@@ -12,12 +12,12 @@ export default function Schubfach() {
   const [activeMode, setActiveMode] = useState<"schreib" | "lesen">("schreib");
 
   return (
-    <div className="min-h-screen bg-white py-10 pb-28">
+    <div className="min-h-screen pb-28">
       {/* Header Section with rounded bottom */}
-      <header className="relative mx-auto max-w-7xl overflow-x-hidden overflow-y-hidden rounded-b-2xl">
+      <header className="relative mx-auto max-w-7xl overflow-x-hidden overflow-y-hidden rounded-b-2xl bg-black/10 pt-10 shadow-lg">
         <div className="relative px-5 md:px-10">
           <div className="grid grid-cols-3">
-            <div className="z-10 col-span-2 mx-auto flex w-full flex-col items-center pt-5 text-center">
+            <div className="z-10 col-span-2 w-full">
               <HomeComponent />
             </div>
             <div>
@@ -27,7 +27,7 @@ export default function Schubfach() {
         </div>
       </header>
       {/* Main Content Section */}
-      <section className="bg-white px-5 py-16 md:px-10 md:py-10">
+      <section className="bg-[#262626] px-5 py-16 md:px-10 md:py-10">
         <div className="mx-auto w-full max-w-7xl">
           <ExerciseGrid
             mode={activeMode}
