@@ -6,9 +6,6 @@ const { title } = Astro.props;
 import { ClerkProvider } from "@clerk/clerk-react";
 import { UserProfile } from "@clerk/clerk-react";
 import { SidebarInset } from "@/components/ui/sidebar";
-import UebungenPage from "@/components/UebungenPage";
-import HomeComponent from "@/components/Home";
-import Schubfach from "@/components/Schubfach";
 ---
 
 <!doctype html>
@@ -20,8 +17,10 @@ import Schubfach from "@/components/Schubfach";
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body class="relative mx-auto max-w-7xl bg-[#262626]">
-    <Schubfach client:load />
+  <body>
+    <Sidebar client:load>
+      <slot />
+    </Sidebar>
   </body>
 </html>
 

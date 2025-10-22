@@ -169,10 +169,10 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
                     !exercise.isLocked && onExerciseClick(exercise.id)
                   }
                   disabled={exercise.isLocked}
-                  className={`group relative w-full rounded-2xl border-2 bg-black/10 shadow-[inset_0_4px_6px_-4px_rgba(240,240,240,0.2)] transition-all duration-200 ${
+                  className={`group relative w-full rounded-2xl border-t-2 border-[#f5f5f5] bg-[#f5f5f5]/50 shadow-[0_6px_0_0_#f5f5f5] transition-all duration-150 ease-in-out hover:border-transparent active:translate-y-[6px] active:shadow-none ${
                     exercise.isLocked
-                      ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
-                      : `border-transparent hover:scale-[99%]`
+                      ? "cursor-not-allowed opacity-60"
+                      : `hover:-translate-y-1`
                   } ${!exercise.isLocked ? "" : "bg-red-500"}`}
                 >
                   <div className="p-6">
@@ -192,7 +192,7 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
                       <div className="flex-1 text-left">
                         <div className="mb-2 flex items-center justify-between">
                           <h3
-                            className={`text-lg font-bold text-white transition-colors group-hover:text-${colorTheme}`}
+                            className={`text-lg font-bold text-black transition-colors group-hover:text-${colorTheme}`}
                           >
                             {exercise.title}
                           </h3>
@@ -204,7 +204,7 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
                             {exercise.difficulty}
                           </span>
                         </div>
-                        <p className="mb-3 text-sm text-white/70">
+                        <p className="mb-3 text-sm text-black/70">
                           {exercise.description}
                         </p>
 
@@ -249,16 +249,16 @@ export function ExerciseGrid({ mode, onExerciseClick }: ExerciseGridProps) {
         <div className="flex flex-col gap-6">
           {/* Action Buttons */}
           <div className="flex flex-col gap-4">
-            <button className="group flex flex-1 items-center justify-center gap-3 rounded-2xl bg-black/10 p-4 shadow-[inset_0_4px_6px_-4px_rgba(240,240,240,0.2)] transition-all duration-200 hover:-translate-y-1">
+            <button className="group relative flex flex-1 items-center justify-center gap-3 rounded-2xl bg-secondary/80 p-4 font-semibold text-white shadow-[0_6px_0_0_hsl(var(--secondary))] transition-all duration-150 ease-in-out active:translate-y-[6px] active:shadow-sm">
               <RefreshCw className="h-5 w-5 text-white transition-transform duration-200 ease-in-out group-hover:rotate-[90deg]" />
-              <span className="font-semibold text-white">Neue Übungen</span>
+              <span>Neue Übungen</span>
             </button>
           </div>
 
           {/* Radar Chart */}
-          <div className="rounded-2xl bg-black/10 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.5)]">
+          <div className="rounded-2xl bg-[#f5f5f5]/50 shadow-[inset_0_4px_6px_1px_rgba(0,0,0,0.1)]">
             <div className="rounded-2xl">
-              <ChartRadarLinesOnly />
+              <ChartRadarLinesOnly mode="schreib" />
             </div>
 
             {/* Statistics */}

@@ -1,16 +1,8 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -19,6 +11,10 @@ import {
 import type { ChartConfig } from "@/components/ui/chart";
 
 export const description = "A radar chart with lines only";
+
+interface RadarMode {
+  mode: "schreib" | "lesen";
+}
 
 const chartData = [
   { month: "January", desktop: 186, mobile: 160 },
@@ -40,7 +36,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartRadarLinesOnly() {
+export function ChartRadarLinesOnly({ mode }: RadarMode) {
   return (
     <Card>
       <CardContent className="pb-0">
@@ -57,9 +53,9 @@ export function ChartRadarLinesOnly() {
             <PolarGrid radialLines={false} />
             <Radar
               dataKey="desktop"
-              fill="hsl(var(--color-desktop))"
+              fill={`hsl(var(${mode === "schreib" ? "--secondary" : "--primary"}))`}
               fillOpacity={0}
-              stroke="hsl(var(--color-desktop))"
+              stroke={`hsl(var(${mode === "schreib" ? "--secondary" : "--primary"}))`}
               strokeWidth={2}
             />
           </RadarChart>
