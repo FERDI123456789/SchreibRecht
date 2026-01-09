@@ -1,5 +1,10 @@
-import { ClerkLoaded, ClerkLoading, ClerkProvider, useAuth } from '@clerk/clerk-react';
-import { ArrowRight } from 'lucide-react';
+import {
+  ClerkLoaded,
+  ClerkLoading,
+  ClerkProvider,
+  useAuth,
+} from "@clerk/clerk-react";
+import { ArrowRight } from "lucide-react";
 
 interface AuthButtonsProps {
   clerkKey: string;
@@ -21,19 +26,20 @@ const InnerAuthButtons = () => {
       <ClerkLoading>
         {/* Placeholder during loading to avoid flash – adjust styles to match button sizes */}
         <div className="flex space-x-3">
-          <div className="w-[234.04px] h-10 bg-primary/50 rounded-full animate-pulse"></div> {/* Sign In placeholder */}
+          <div className="h-10 w-[234.04px] animate-pulse rounded-full bg-secondary/50"></div>{" "}
+          {/* Sign In placeholder */}
         </div>
       </ClerkLoading>
       <ClerkLoaded>
         {isSignedIn ? (
           <a
             href="/schubfach/uebungen"
-            className="relative rounded-md border font-extrabold uppercase border-primary hover:border-transparent text-primary hover:bg-primary focus:bg-gray-300 group select-none flex items-center justify-center cursor-pointer px-5 py-2 tracking-wider transition-all duration-200 overflow-hidden"
+            className="group relative flex cursor-pointer select-none items-center justify-center overflow-hidden rounded-md border border-secondary px-5 py-2 font-extrabold uppercase tracking-wider text-secondary transition-all duration-200 hover:border-transparent hover:bg-secondary focus:bg-gray-300"
           >
-            <p className=" text-md select-none group-hover:text-white duration-200 transition-all">
+            <p className="text-md select-none transition-all duration-200 group-hover:text-white">
               Schubfach
               <ArrowRight
-                className="group-hover:-rotate-12 inline mb-0.5"
+                className="mb-0.5 inline group-hover:-rotate-12"
                 size={20}
               />
             </p>
@@ -42,17 +48,17 @@ const InnerAuthButtons = () => {
           <>
             <a
               href="/auth/signin"
-              className="relative rounded-md text-primary font-extrabold uppercase group select-none flex items-center hover:bg-primary focus:bg-gray-300 justify-center cursor-pointer px-5 py-2 tracking-wider transition-all duration-200 overflow-hidden mr-3"
+              className="group relative mr-3 flex cursor-pointer select-none items-center justify-center overflow-hidden rounded-md px-5 py-2 font-extrabold uppercase tracking-wider text-secondary transition-all duration-200 hover:bg-secondary focus:bg-gray-300"
             >
-              <p className=" text-md select-none group-hover:text-white duration-200 transition-all">
+              <p className="text-md select-none transition-all duration-200 group-hover:text-white">
                 Sign In
               </p>
             </a>
             <a
               href="/auth/signup"
-              className="relative rounded-md border font-extrabold uppercase border-primary hover:border-transparent text-primary hover:bg-primary focus:bg-gray-300 group select-none flex items-center justify-center cursor-pointer px-5 py-2 tracking-wider transition-all duration-200 overflow-hidden"
+              className="group relative flex cursor-pointer select-none items-center justify-center overflow-hidden rounded-md border border-secondary px-5 py-2 font-extrabold uppercase tracking-wider text-secondary transition-all duration-200 hover:border-transparent hover:bg-secondary focus:bg-gray-300"
             >
-              <p className="text-md select-none group-hover:text-white duration-200 transition-all">
+              <p className="text-md select-none transition-all duration-200 group-hover:text-white">
                 Sign Up
               </p>
             </a>

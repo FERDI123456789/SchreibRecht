@@ -1,8 +1,19 @@
 ---
 import CreateLayout from "../../layouts/CreateLayout.astro";
 import HomeComponent from "../../components/Home";
+import { ChartLineInteractive } from "@/components/DayChart";
 ---
 
 <CreateLayout title="Schubfach - Home">
-  <HomeComponent client:load />
-</CreateLayout> 
+  {/* Header Section with rounded bottom */}
+  <header class="relative rounded-b-2xl">
+    <div class="relative px-5 md:px-10">
+      <div class="">
+        <div class="z-10 w-full">
+          <HomeComponent />
+        </div>
+      </div>
+      <ChartLineInteractive client:load />
+    </div>
+  </header>
+</CreateLayout>

@@ -9,6 +9,10 @@ import {
   PieChart,
   Send,
   SquarePen,
+  Inbox,
+  ShoppingBag,
+  Home,
+  Settings,
 } from "lucide-react"
 
 import { NavProjects } from "@/components/nav-projects"
@@ -32,6 +36,11 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   projects: [
+      {
+      name: "Home",
+      url: "/schubfach/home",
+      icon: Home,
+    },
     {
       name: "Übungen",
       url: "/schubfach/uebungen",
@@ -39,13 +48,13 @@ const data = {
     },
     {
       name: "Shop",
-      url: "/schubfach/uebungen",
-      icon: PieChart,
+      url: "/schubfach/shop",
+      icon: ShoppingBag,
     },
     {
       name: "Einstelugen",
       url: "#",
-      icon: Map,
+      icon: Settings,
     },
   ],
   navSecondary: [
